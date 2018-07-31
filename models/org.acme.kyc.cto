@@ -1,0 +1,79 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Write your model definitions here
+ */
+
+namespace org.acme.kyc
+
+
+participant Entity identified by entityId {
+  o String entityId
+  o EntityType type
+  o String name
+  o String uniqueIdentifier // (like IFSC code)
+  o String address
+  o DateTime creationDate
+}
+
+enum EntityType {
+   o BANK
+   o INSURANCE
+   o HOUSING_FINANCE
+ }
+
+ participant User identified by id {
+   o String id
+ }
+ 
+
+
+asset UserKyc identified by kycId {
+  o String kycId
+  --> User userId
+  o String firstName
+  o String lastName
+  o String email
+  o String mobile
+  o String employmentType
+  o String pan
+  o Gender gender
+  o String[] mediaIds optional
+  o DateTime dob
+  --> Entity addedBy
+  --> Entity[] approvedList
+  o Integer confirmations default = 0
+}
+
+enum Gender {
+    o MALE
+    o FEMALE
+    o OTHER
+ }
+
+transaction UpdateUserKyc {
+  --> UserKyc userKyc
+  o String firstName
+  o String lastName
+  o String email
+  o String mobile
+  o String employmentType
+  o DateTime dob
+}
+
+transaction Approve {
+  --> UserKyc userKyc
+  --> Entity entity
+}
