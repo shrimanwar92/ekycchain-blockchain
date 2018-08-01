@@ -19,8 +19,8 @@
 namespace org.acme.kyc
 
 
-participant Entity identified by entityId {
-  o String entityId
+participant Entity identified by id {
+  o String id
   o EntityType type
   o String name
   o String uniqueIdentifier // (like IFSC code)
@@ -34,46 +34,41 @@ enum EntityType {
    o HOUSING_FINANCE
  }
 
- participant User identified by id {
-   o String id
- }
- 
-
-
-asset UserKyc identified by kycId {
-  o String kycId
-  --> User userId
-  o String firstName
-  o String lastName
-  o String email
-  o String mobile
-  o String employmentType
-  o String pan
-  o Gender gender
-  o String[] mediaIds optional
-  o DateTime dob
-  --> Entity addedBy
-  --> Entity[] approvedList
-  o Integer confirmations default = 0
-}
-
-enum Gender {
+ enum Gender {
     o MALE
     o FEMALE
     o OTHER
  }
 
+ participant User identified by id {
+    o String id
+    o String firstName
+    o String lastName
+    o String email
+    o String mobile
+    o String employmentType
+    o String pan
+    o Gender gender
+    o DateTime dob
+ }
+ 
+
+
+asset KYC identified by id {
+  o String id
+  --> User user
+  o String[] mediaIds optional
+  --> Entity[] approvedList
+  o Integer confirmations default = 0
+}
+
 transaction UpdateUserKyc {
-  --> UserKyc userKyc
-  o String firstName
-  o String lastName
+  --> KYC kyc
   o String email
   o String mobile
-  o String employmentType
-  o DateTime dob
 }
 
 transaction Approve {
-  --> UserKyc userKyc
+  --> KYC kyc
   --> Entity entity
 }

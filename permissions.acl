@@ -27,11 +27,11 @@ rule EntityHasFullAccessToItself {
     action: ALLOW
 }
 
-rule EntityHasFullAccessToAssetsIfItIsInApprovalList {
-    description: "Allow all participants full access to their assets if entity is in asset's approver list"
+rule EntityHasREADAccessToAssetIfItIsInApprovalList {
+    description: "Allow all participants read access to asset if entity is in asset's approver list"
     participant(p): "org.acme.kyc.Entity"
-    operation: ALL
-    resource(r): "org.acme.kyc.UserKyc"
+    operation: READ
+    resource(r): "org.acme.kyc.KYC"
     condition: (
       r.approvedList.some(function (bank) {
         return bank.getIdentifier() === p.getIdentifier();  
@@ -40,15 +40,46 @@ rule EntityHasFullAccessToAssetsIfItIsInApprovalList {
     action: ALLOW
 }
 
-rule EntityCanUpdateAssetIfItIsInApprovalList {
-    description: "Allow all participants full access to their assets if entity is in asset's approver list"
-    participant(p): "org.acme.kyc.Entity"
-    operation: UPDATE
+rule UserHasFullAccessToItsAsset {
+    description: "Allow participants full access to their assets"
+    participant(p): "org.acme.kyc.User"
+    operation: ALL
+    resource(r): "org.acme.kyc.KYC"
+    condition: (
+      p.getIdentifier() === r.user.getIdentifier()
+    )
+    action: ALLOW
+}
+
+rule UserHasFullAccessToItself {
+    description: "Allow participants full access to itself"
+    participant(p): "org.acme.kyc.User"
+    operation: ALL
+    resource(r): "org.acme.kyc.User"
+    condition: (
+      p.getIdentifier() === r.getIdentifier()
+    )
+    action: ALLOW
+}
+
+rule UserHasFullAccessToUpdateUserKycTx {
+    description: "Allow participants full access to update asset transaction"
+    participant(p): "org.acme.kyc.User"
+    operation: ALL
     resource(r): "org.acme.kyc.UpdateUserKyc"
     condition: (
-      r.approvedList.some(function (bank) {
-        return bank.getIdentifier() === p.getIdentifier();  
-      })
+      p.getIdentifier() === r.kyc.user.getIdentifier()
+    )
+    action: ALLOW
+}
+
+rule UserHasFullAccessToApproveTx {
+    description: "Allow participant to approve transaction"
+    participant(p): "org.acme.kyc.User"
+    operation: ALL
+    resource(r): "org.acme.kyc.Approve"
+    condition: (
+      p.getIdentifier() === r.kyc.user.getIdentifier()
     )
     action: ALLOW
 }
